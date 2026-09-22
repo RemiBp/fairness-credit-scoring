@@ -1,0 +1,100 @@
+{
+  "source_sha256": "5f363343f356ca38a0236baab849e472846399b2176ccc5bd686483dd8a7562f",
+  "rows": 1000,
+  "columns": 21,
+  "predictors": 20,
+  "incomplete_records": 0,
+  "invalid_category_codes": 0,
+  "duplicate_rows": 0,
+  "target": {
+    "good_kredit_1": 700,
+    "bad_kredit_0": 300
+  },
+  "numeric_ranges": {
+    "laufzeit": [
+      4,
+      72
+    ],
+    "hoehe": [
+      250,
+      18424
+    ],
+    "alter": [
+      19,
+      75
+    ]
+  },
+  "age_threshold_sensitivity": {
+    "20": {
+      "below": {
+        "n": 2,
+        "bad": 1,
+        "good": 1,
+        "bad_rate": 0.5,
+        "wilson_95": [
+          0.09453120573423074,
+          0.9054687942657693
+        ]
+      },
+      "at_or_above": {
+        "n": 998,
+        "bad": 299,
+        "good": 699,
+        "bad_rate": 0.2995991983967936,
+        "wilson_95": [
+          0.27199159182181243,
+          0.32874363781137195
+        ]
+      }
+    },
+    "25": {
+      "below": {
+        "n": 150,
+        "bad": 62,
+        "good": 88,
+        "bad_rate": 0.41333333333333333,
+        "wilson_95": [
+          0.3376534099233595,
+          0.49334143243377376
+        ]
+      },
+      "at_or_above": {
+        "n": 850,
+        "bad": 238,
+        "good": 612,
+        "bad_rate": 0.28,
+        "wilson_95": [
+          0.25085700989211246,
+          0.31112256355638224
+        ]
+      }
+    },
+    "30": {
+      "below": {
+        "n": 369,
+        "bad": 137,
+        "good": 232,
+        "bad_rate": 0.3712737127371274,
+        "wilson_95": [
+          0.3235405562831791,
+          0.4216594536607604
+        ]
+      },
+      "at_or_above": {
+        "n": 631,
+        "bad": 163,
+        "good": 468,
+        "bad_rate": 0.2583201267828843,
+        "wilson_95": [
+          0.22570227382833813,
+          0.2938628148056341
+        ]
+      }
+    }
+  },
+  "notes": [
+    "Unknown/no-account categories are valid source codes, not verified absence of missing information.",
+    "Wilson intervals describe within-sample proportions; this case-control sample does not identify population default rates.",
+    "No model fitted; descriptive age differences do not establish discrimination."
+  ]
+}
