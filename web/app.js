@@ -11,9 +11,9 @@ for(const [key,m] of Object.entries(D.models)) {
 $('comparison-rows').insertAdjacentHTML('beforeend',`<tr><td>Constant training-rate baseline</td><td>${fmt(D.baseline.auc)}</td><td>${fmt(D.baseline.average_precision)}</td><td>${fmt(D.baseline.log_loss)}</td><td>${fmt(D.baseline.brier)}</td></tr>`);
 const best=Object.values(D.models).reduce((a,b)=>a.metrics.auc>b.metrics.auc?a:b);
 $('best-auc').textContent=fmt(best.metrics.auc)+' ROC-AUC';
-$('best-label').textContent=best.name+' on validation; no final test result';
+$('best-label').textContent=best.name+' · validation';
 const diff=D.paired_auc_difference;
-$('comparison-summary').textContent=`The forest ranks cases slightly better here, while logistic regression has lower log-loss and Brier score. Forest minus logistic AUC: ${fmt(diff.forest_minus_logistic)} (paired 95% interval ${interval(diff.interval_95)}). ${diff.interval_95[0]<=0&&diff.interval_95[1]>=0?'The interval includes zero, so these data do not establish a clear ranking advantage.':'Treat the comparison as provisional until the final evaluation.'}`;
+$('comparison-summary').textContent=`AUC gap: ${fmt(diff.forest_minus_logistic)} (95%: ${interval(diff.interval_95)}). ${diff.interval_95[0]<=0&&diff.interval_95[1]>=0?'No clear ranking advantage.':'Validation comparison only.'} Logistic regression has lower probability error.`;
 function calibrationChart(rows) {
   const x=p=>35+p*260,y=p=>185-p*160;
   return `<svg viewBox="0 0 330 218" role="img" aria-label="Calibration: mean predicted bad-credit probability versus observed bad-credit rate"><line x1="35" y1="185" x2="295" y2="25" stroke="#b8c9be" stroke-dasharray="4 4"/><path d="M35 25V185H295" fill="none" stroke="#aab3ad"/>${[0,.5,1].map(p=>`<text class="chart-label" x="${x(p)}" y="202" text-anchor="middle">${p}</text><text class="chart-label" x="24" y="${y(p)+4}" text-anchor="end">${p}</text>`).join('')}${rows.map(r=>`<circle cx="${x(r.mean_prediction)}" cy="${y(r.bad_rate)}" r="${3+Math.sqrt(r.n)/2}" fill="#1b4a38" fill-opacity=".75"><title>n=${r.n}; predicted ${pct(r.mean_prediction)}; observed ${pct(r.bad_rate)}</title></circle>`).join('')}<text class="chart-label" x="165" y="216" text-anchor="middle">Mean predicted bad-credit probability</text></svg>`;
@@ -25,13 +25,13 @@ function update() {
   if(document.activeElement!==$('threshold-number')) $('threshold-number').value=t.toFixed(2);
   $('policy-stats').innerHTML=`<div class="stat"><b>${d.accepted} / ${d.n}</b><span>Cases accepted at threshold ${t.toFixed(2)}</span></div><div class="stat"><b>${d.bad_accepted} bad credits</b><span>Accepted under this policy</span></div><div class="stat warn"><b>${fmt(d.cost_per_100,1)} units</b><span>Simulated cost per 100 cases</span></div>`;
   $('confusion').innerHTML=`<tr><th>Good credit</th><td>${d.good_accepted}</td><td>${d.good_refused}</td></tr><tr><th>Bad credit</th><td>${d.bad_accepted}</td><td>${d.bad_refused}</td></tr>`;
-  $('cost-note').textContent=`Cost = 100 × (${ratio} × ${d.bad_accepted} bad acceptances + ${d.good_refused} good refusals) / ${d.n}. Illustrative units, not euros.`;
+  $('cost-note').textContent=`Cost per 100 = 100 × (${ratio} × ${d.bad_accepted} + ${d.good_refused}) / ${d.n}. Simulated units.`;
   $('calibration').innerHTML=calibrationChart(m.calibration);
   const groups=Metrics.groups(D.cases,key,t,cut),labels=[`Below ${cut}`,`${cut} or above`];
-  $('fairness-context').textContent=`${m.name}; threshold ${t.toFixed(2)}. Groups contain ${groups[0].n} and ${groups[1].n} validation records.`;
+  $('fairness-context').textContent=`${m.name} · threshold ${t.toFixed(2)} · n = ${groups[0].n} / ${groups[1].n}`;
   $('fairness-rows').innerHTML=groups.map((g,i)=>`<tr><th>${labels[i]}<span class="small">n=${g.n}</span></th><td>${rateCell(g.acceptance)}</td><td>${rateCell(g.good_refusal)}</td><td>${rateCell(g.bad_acceptance)}</td></tr>`).join('');
   const gap=100*(groups[0].acceptance.rate-groups[1].acceptance.rate);
-  $('fairness-gap').textContent=`Acceptance-rate difference, younger minus older group: ${gap>=0?'+':''}${gap.toFixed(1)} percentage points. This descriptive gap depends on the model and threshold; it is not a causal finding.`;
+  $('fairness-gap').textContent=`Acceptance gap, younger minus older: ${gap>=0?'+':''}${gap.toFixed(1)} percentage points.`;
   updateCase();
 }
 function bars(id,items,formatter,max) {
@@ -48,12 +48,12 @@ for(const c of D.cases.slice(0,3)) $('case-select').add(new Option(`Source row $
 function updateCase() {
   const c=D.cases.find(c=>c.row_id===Number($('case-select').value));if(!c) return;
   const {t}=current();
-  $('case-info').innerHTML=`<strong>Source row ${c.row_id}.</strong> Age ${c.age}; loan duration ${c.duration} months; transformed amount ${c.amount_transformed}. Observed outcome: <strong>${c.y_bad?'bad credit':'good credit'}</strong>.<br>Logistic score ${pct(c.scores.logistic)}: ${c.scores.logistic<t?'accepted':'refused'}. Forest score ${pct(c.scores.forest)}: ${c.scores.forest<t?'accepted':'refused'} at threshold ${t.toFixed(2)}. These explanations use the primary models with age.`;
+  $('case-info').innerHTML=`<strong>Source row ${c.row_id}.</strong> Age ${c.age}; loan duration ${c.duration} months; transformed amount ${c.amount_transformed}. Observed outcome: <strong>${c.y_bad?'bad credit':'good credit'}</strong>.<br>Logistic score ${pct(c.scores.logistic)}: ${c.scores.logistic<t?'accepted':'refused'}. Forest score ${pct(c.scores.forest)}: ${c.scores.forest<t?'accepted':'refused'} at threshold ${t.toFixed(2)}. Models include age.`;
   const lr=c.explanations.logistic;
   bars('logistic-local',lr.terms.slice(0,5).map(d=>({...d,feature:d.feature.replace('numeric__','').replace('categorical__','')})),v=>(v>=0?'+':'')+fmt(v,2));
-  $('logistic-local').insertAdjacentHTML('beforeend',`<p class="note">Top five terms in log-odds. Intercept ${fmt(lr.intercept)}; intercept + all terms = ${fmt(lr.logit)}. Labels use original column codes from the coding table.</p>`);
+  $('logistic-local').insertAdjacentHTML('beforeend',`<p class="note">Top five log-odds terms. Intercept ${fmt(lr.intercept)}; total ${fmt(lr.logit)}. Original column codes.</p>`);
   bars('forest-local',c.explanations.forest.terms.slice(0,5),v=>(v>=0?'+':'')+fmt(100*v,1)+' pp');
-  $('forest-local').insertAdjacentHTML('beforeend','<p class="note">Positive values mean the original profile scores higher than the one-variable reference replacement. Bar length shows absolute change.</p>');
+  $('forest-local').insertAdjacentHTML('beforeend','<p class="note">Positive: original score exceeds the replacement score. Bars show absolute change.</p>');
 }
 $('threshold').addEventListener('input',update);
 $('threshold-number').addEventListener('input',()=>{const value=Number($('threshold-number').value);$('threshold').value=Number.isFinite(value)?Math.max(0,Math.min(1,value)):.5;update();});
