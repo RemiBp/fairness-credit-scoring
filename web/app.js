@@ -38,8 +38,9 @@ function bars(id,items,formatter,max) {
   const scale=max||Math.max(...items.map(d=>Math.abs(d.contribution??d.mean)),.001);
   $(id).innerHTML=items.map(d=>{let value=d.contribution??d.mean;return `<div class="bar-row"><span>${esc(d.feature)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,100*Math.abs(value)/scale)}%;background:${value<0?'#9bb8a6':'#1b4a38'}"></div></div><span class="value">${formatter(value)}</span></div>`;}).join('');
 }
+const importanceScale=Math.max(...['logistic','forest'].flatMap(k=>D.models[k].importance.map(v=>Math.abs(v.mean))));
 for(const kind of ['logistic','forest']) {
-  bars(kind+'-importance',D.models[kind].importance.slice(0,6),v=>fmt(v));
+  bars(kind+'-importance',D.models[kind].importance.slice(0,6),v=>fmt(v),importanceScale);
   const s=D.models[kind].stability;
   $('stability-rows').insertAdjacentHTML('beforeend',`<tr><td>${esc(D.models[kind].name)}</td><td>${fmt(100*s.mean_probability_sd,1)} pp</td><td>${pct(s.decision_disagreement_at_05)}</td><td>${interval(s.auc_range)}</td></tr>`);
 }
