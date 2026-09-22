@@ -1,0 +1,15 @@
+{
+  "logistic": {
+    "C": 1,
+    "max_iter": 2000
+  },
+  "forest": {
+    "n_estimators": 250,
+    "min_samples_leaf": 5,
+    "max_features": "sqrt"
+  },
+  "preprocessing": "one-hot categories; standardised duration, amount and age; train-fit only",
+  "hyperparameter_search": false,
+  "threshold_grid_step": 0.01,
+  "stability_bootstrap_fits": 12
+}

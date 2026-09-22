@@ -43,3 +43,9 @@ TabPFN is proposed, not yet executed. Verify access to a specific version and ch
 ## Final recommendation
 
 Recommend a model in the hypothetical client setting using all four dimensions, including operational constraints and limitations. Separate that educational recommendation from the further data, validation and governance needed for an actual deployment.
+
+## First implementation, 22 September
+
+The baseline implementation follows this split and target convention. Logistic regression and Random Forest, with/without age, have been fitted. No hyperparameter search was performed. Thresholds are explored on validation and their displayed costs are explicitly development estimates. The test set has not been scored.
+
+Global importance uses 10 permutations per original feature. Local logistic terms sum exactly to the logit; the forest uses one-variable median/mode replacement sensitivity, not SHAP. Initial stability uses 12 outcome-stratified bootstrap training resamples. Fairness rates have Wilson intervals conditional on the model and threshold; intervals for between-group differences, explanation-rank stability and the foundation model remain to be added.

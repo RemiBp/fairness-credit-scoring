@@ -6,3 +6,6 @@ __pycache__/
 !.env.example
 .DS_Store
 .ipynb_checkpoints/
+models/
+
+results/run.log

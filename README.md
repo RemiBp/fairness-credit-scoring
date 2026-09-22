@@ -2,11 +2,14 @@
 
 A proposal for the ISAF group project, using the corrected South German Credit dataset. The goal is to compare three approaches to binary credit scoring and explain which trade-offs matter for a hypothetical lender.
 
-**Current status:** dataset proposal and reproducible audit. Group adoption and instructor pre-validation are pending. No models have been trained; no model performance or final deployment recommendation is claimed.
+**Current status:** logistic regression and Random Forest have been trained, each with and without age. A standalone interactive report shows the computed validation results, costs, explanations and initial stability checks. Group adoption and instructor pre-validation are pending. The tabular foundation model and final recommendation remain to be completed.
+
+**[Open the interactive report](https://remibp.github.io/fairness-credit-scoring/)** or download [docs/index.html](docs/index.html) and open it locally. It works offline.
 
 ## Start here
 
-- [Two-page dataset proposal](docs/dataset-proposal.pdf)
+- [Initial two-page dataset proposal, prepared before model development](docs/dataset-proposal.pdf)
+- [Computed results and methodology](docs/results.md)
 - [Analysis protocol](docs/protocol.md)
 - [Work remaining and deadlines](docs/work-plan.md)
 - [Audit results](audit/report.json)
@@ -30,12 +33,30 @@ python3 audit.py
 
 This regenerates `audit/report.json` and `audit/column_summary.csv`. The source data are unchanged. An unexpected file checksum, schema or category code stops the audit.
 
-## Proposed comparison
+## Reproduce the models and report
+
+Tested with Python 3.14.6. Dependencies are pinned in `requirements.txt`.
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python benchmark.py
+python build_report.py
+python -m unittest discover -s tests -v
+node tests/test_browser_metrics.cjs
+```
+
+Open `docs/index.html` in a browser. The report contains the data it needs and makes no external network requests. Model fitting creates four local `models/*.joblib` pipelines, excluded from Git; regenerate them from the source rather than loading untrusted model files.
+
+`results/split.json` records the fixed 600/200/200 partition. Only validation cases receive predictions in this benchmark. Test rows are reserved for a later frozen evaluation. The HTML explores precomputed validation scores; arbitrary new-profile scoring is not yet implemented.
+
+## Current model comparison
 
 | Model | Role | Status |
 |---|---|---|
-| Regularised logistic regression | Interpretable baseline | Planned |
-| Random Forest | Machine-learning comparison | Planned |
+| Regularised logistic regression | Interpretable baseline | Trained, with/without age |
+| Random Forest | Machine-learning comparison | Trained, with/without age |
 | Tabular foundation model, TabPFN proposed | Pretrained tabular comparison | Access, version and compute to confirm |
 
 Each model will be assessed on statistical and simulated economic performance, global and local interpretability, stability, and fairness. The final work must discuss trade-offs and make a justified recommendation, rather than rank models by accuracy alone.

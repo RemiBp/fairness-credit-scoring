@@ -29,12 +29,12 @@ Source: ISAF Project Description, HEC Paris, 2026-2027. Refer to the course chan
 
 | Package | Output | Current state |
 |---|---|---|
-| Data and protocol | Source checks, coding, fixed split, common metric definitions | Source audit and proposal ready; split to implement |
-| Logistic regression | Reproducible baseline and explanations | To implement |
-| Random Forest | Comparable baseline and explanations | To implement |
+| Data and protocol | Source checks, coding, fixed split, common metric definitions | Audit, proposal and fixed 600/200/200 split implemented |
+| Logistic regression | Reproducible baseline and explanations | Trained; exact local log-odds contributions |
+| Random Forest | Comparable baseline and explanations | Trained; permutation importance and local sensitivity |
 | Foundation model | Third model, pinned version/checkpoint, shared evaluation cases | Feasibility to confirm |
-| Stability and fairness | Common analyses with uncertainty and limitations | To implement |
-| Application and integration | Interactive comparison, slides and reproducible handover | To implement |
+| Stability and fairness | Common analyses with uncertainty and limitations | Initial resampling, age metrics and intervals implemented; explanation-rank stability pending |
+| Application and integration | Interactive comparison, slides and reproducible handover | Offline HTML explorer implemented; free-form scoring, third model and slides pending |
 
 Suggested contribution from Rémi: data preparation and initial logistic/Random Forest benchmark, subject to the team's plans. Packages need not map one-to-one to members, and everyone must review the final work.
 
@@ -47,3 +47,7 @@ Suggested contribution from Rémi: data preparation and initial logistic/Random 
 - Application starts from documented commands and reproduces the saved results.
 - Slides match computed results and fit the presentation time.
 - All members can answer questions beyond their own section.
+
+## Development report
+
+The current HTML report uses validation results only. The initial PDF proposal remains as a dated record of the dataset choice. No final project has been submitted and no instructor approval is claimed.
